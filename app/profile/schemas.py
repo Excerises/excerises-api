@@ -2,10 +2,11 @@ from datetime import date, time
 
 from pydantic import BaseModel
 
+from app.users.model import UserRole
 
-class ProfileResponse(BaseModel):
+
+class ProfileData(BaseModel):
     id: str
-    user_id: str
     birth_date: date | None = None
     height: float | None = None
     weight: float | None = None
@@ -15,6 +16,16 @@ class ProfileResponse(BaseModel):
     reminder_days: list[int] | None = None
     reminder_time: time | None = None
     workout_duration_per_day: int | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class ProfileResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    role: UserRole
+    profile: ProfileData | None = None
 
     model_config = {"from_attributes": True}
 

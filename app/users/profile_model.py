@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime, time
 
 from sqlalchemy import Float, ForeignKey, Integer, JSON, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.users.model import Base
 
@@ -12,6 +12,7 @@ class UserProfile(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), unique=True, nullable=False)
+    user: Mapped["User"] = relationship(back_populates="profile")
     birth_date: Mapped[date] = mapped_column(nullable=True)
     height: Mapped[float] = mapped_column(Float, nullable=True)
     weight: Mapped[float] = mapped_column(Float, nullable=True)

@@ -1,6 +1,8 @@
-def main():
-    print("Hello from fitness-app-api!")
+from fastapi import FastAPI
+
+app = FastAPI()
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/")
+def hello_world():
+    return {"message": "Hello from Excerises!"}

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
 from app.auth.router import router as auth_router
-from app.database import engine
+from app.database.connection import engine
 from app.profile.router import router as profile_router
 from app.users.model import Base
 from app.users.profile_model import UserProfile  # noqa: F401 — ensure model registered
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Fitness App API", lifespan=lifespan)
+app = FastAPI(title="Excerises", lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(profile_router)

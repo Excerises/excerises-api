@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
+from app.database.connection import get_db
 
 from .schemas import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse
 from .service import login, refresh_token, register

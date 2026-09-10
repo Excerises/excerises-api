@@ -35,7 +35,6 @@ class ProfileUpdateRequest(BaseModel):
     height: float | None = None
     weight: float | None = None
     workout_freq_per_week: int | None = None
-    fitness_level: str | None = None
     reminder_days: list[int] | None = None
     reminder_time: time | None = None
     workout_duration_per_day: int | None = None

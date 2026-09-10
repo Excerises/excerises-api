@@ -44,6 +44,6 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=config.settings.APP_PORT,
-        reload=config.settings.is_development(),
+        reload=True,
         log_level=logging.ERROR,
     )

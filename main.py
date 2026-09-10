@@ -1,3 +1,4 @@
+import logging
 import uvicorn
 from contextlib import asynccontextmanager
 
@@ -5,7 +6,7 @@ from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
 from app.auth.router import router as auth_router
-from app.core import config
+from app.core import config, logger
 from app.database.connection import engine
 from app.profile.router import router as profile_router
 from app.users.model import Base
@@ -36,9 +37,13 @@ def hello_world():
 
 
 if __name__ == "__main__":
+    logger.log.info(
+        f"Application running in http://localhost:{config.settings.APP_PORT}"
+    )
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=config.settings.APP_PORT,
         reload=config.settings.is_development(),
+        log_level=logging.ERROR,
     )

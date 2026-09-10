@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_PORT: int = 5000
+    LOG_LEVEL: str = "DEBUG"
     DATABASE_URL: str = "mysql+aiomysql://root:@localhost:3306/excerises"
     JWT_SECRET: str = "change-me-in-production"
     JWT_ALGORITHM: str = "HS256"
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env"}
 
     def is_development(self) -> bool:
-        return self.APP_ENV == "development"
+        return "prod" not in self.APP_ENV
 
 
 settings = Settings()

@@ -35,6 +35,7 @@ class User(Base):
     )
     news: Mapped[list["News"]] = relationship(back_populates="created_by")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")
+    login_logs: Mapped[list["UserLoginLog"]] = relationship(back_populates="user")
     sessions: Mapped[list["Session"]] = relationship(back_populates="user")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -167,6 +168,24 @@ class Notification(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str] = mapped_column(Text)
     readed_at: Mapped[datetime] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
+
+
+class UserLoginLog(Base):
+    __tablename__ = "user_login_logs"
+
+    id: Mapped[int] = mapped_column(
+        Integer, autoincrement=True, nullable=False, primary_key=True
+    )
+    user_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=False
+    )
+    user: Mapped["User"] = relationship(back_populates="login_logs")
+    ip_address: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    device: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()

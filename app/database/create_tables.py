@@ -1,7 +1,7 @@
 import asyncio
 
 from app.database.connection import engine
-from app.users.model import Base
+from app.database.schemas import Base
 
 
 async def main():

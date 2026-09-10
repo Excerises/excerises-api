@@ -3,8 +3,8 @@ import asyncio
 from sqlalchemy import select
 
 from app.database.connection import async_session, engine
-from app.users.model import User, UserRole
-from app.auth.service import hash_password
+from app.database.schemas import User, UserRole
+from app.modules.auth.service import hash_password
 
 
 async def seed_admin():

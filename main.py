@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
+from app.admin.user.router import router as admin_user_router
 from app.auth.router import router as auth_router
 from app.core import config, logger
 from app.database.connection import engine
@@ -24,6 +25,7 @@ app = FastAPI(title="Excerises", lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(profile_router)
+app.include_router(admin_user_router)
 
 add_scalar_reference(
     app,

@@ -1,9 +1,11 @@
+import uvicorn
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
 from app.auth.router import router as auth_router
+from app.core import config
 from app.database.connection import engine
 from app.profile.router import router as profile_router
 from app.users.model import Base
@@ -31,3 +33,12 @@ add_scalar_reference(
 @app.get("/")
 def hello_world():
     return {"message": "Hello from Excerises!"}
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=config.settings.APP_PORT,
+        reload=config.settings.is_development(),
+    )

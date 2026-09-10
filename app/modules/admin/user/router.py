@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import require_admin
+from app.modules.auth.dependencies import require_admin
 from app.database.connection import get_db
-from app.users.model import User
+from app.database.schemas import User
 
 from .schemas import (
     AdminUserAuthUpdateRequest,

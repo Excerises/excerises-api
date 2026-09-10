@@ -2,9 +2,9 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.service import hash_password
-from app.users.model import User, UserRole
-from app.users.profile_model import UserProfile
+from app.modules.auth.service import hash_password
+from app.database.schemas import User, UserRole
+from app.database.schemas import UserProfile
 
 
 async def list_users(db: AsyncSession) -> list[User]:

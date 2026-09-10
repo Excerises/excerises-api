@@ -5,14 +5,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
-from app.admin.exercises.router import router as admin_exercises_router
-from app.admin.user.router import router as admin_user_router
-from app.auth.router import router as auth_router
+from app.database.schemas import Base
+from app.modules.admin.exercises.router import router as admin_exercises_router
+from app.modules.admin.user.router import router as admin_user_router
+from app.modules.auth.router import router as auth_router
 from app.core import config, logger
 from app.database.connection import engine
-from app.profile.router import router as profile_router
-from app.users.model import Base
-from app.users.profile_model import UserProfile  # noqa: F401 — ensure model registered
+from app.modules.profile.router import router as profile_router
 
 
 @asynccontextmanager

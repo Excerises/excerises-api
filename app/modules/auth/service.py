@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.users.model import User, UserRole
+from app.database.schemas import User, UserRole
 
 
 def hash_password(password: str) -> str:

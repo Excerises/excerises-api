@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.users.model import User
-from app.users.profile_model import UserProfile
+from app.database.schemas import User
+from app.database.schemas import UserProfile
 
 
 async def get_profile(db: AsyncSession, user_id: str) -> User | None:

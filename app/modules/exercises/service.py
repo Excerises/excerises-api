@@ -8,7 +8,7 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.exercises.exercise_model import Exercise
+from app.database.schemas import Exercise
 
 
 def parse_list_string(value: Any) -> list | None:
@@ -99,9 +99,11 @@ async def import_exercise(
                     setattr(existing, key, value)
             else:
                 exercise = Exercise(
-                    id=str(normalized_row.get("id"))
-                    if pd.notna(normalized_row.get("id"))
-                    else None,
+                    id=(
+                        str(normalized_row.get("id"))
+                        if pd.notna(normalized_row.get("id"))
+                        else None
+                    ),
                     name=name,
                     **data,
                 )

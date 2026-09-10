@@ -2,7 +2,7 @@ from datetime import date, datetime, time
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.users.model import UserRole
+from app.database.schemas import UserRole
 
 
 class AdminProfileData(BaseModel):

@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import require_admin
+from app.database.schemas import User
+from app.modules.auth.dependencies import require_admin
 from app.database.connection import get_db
-from app.exercises.schemas import (
+from app.modules.exercises.schemas import (
     ExerciseImportRequest,
     ExerciseListResponse,
     ImportResponse,
 )
-from app.exercises.service import import_exercise, list_exercises
-from app.users.model import User
+from app.modules.exercises.service import import_exercise, list_exercises
 
 router = APIRouter(
     prefix="/admin/exercises",

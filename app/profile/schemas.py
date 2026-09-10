@@ -1,6 +1,6 @@
 from datetime import date, time
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.users.model import UserRole
 
@@ -38,3 +38,11 @@ class ProfileUpdateRequest(BaseModel):
     reminder_days: list[int] | None = None
     reminder_time: time | None = None
     workout_duration_per_day: int | None = None
+
+
+class CalculateFitnessLevelRequest(BaseModel):
+    pass
+
+
+class CalculateFitnessLevelResponse(BaseModel):
+    level: int = Field(ge=1, le=3)

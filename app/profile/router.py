@@ -6,8 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user_id
 from app.database.connection import get_db
 
-from .schemas import ProfileResponse, ProfileUpdateRequest
-from .service import get_profile, update_profile
+from .schemas import (
+    CalculateFitnessLevelRequest,
+    CalculateFitnessLevelResponse,
+    ProfileResponse,
+    ProfileUpdateRequest,
+)
+from .service import calculate_fitness_level, get_profile, update_profile
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
@@ -39,3 +44,14 @@ async def update_my_profile(
     profile = await update_profile(db, str(user_id), data)
     user = await get_profile(db, str(user_id))
     return user
+
+
+@router.post("/calculate-fitness", response_model=CalculateFitnessLevelResponse)
+async def calculate_my_fitness_level(
+    body: CalculateFitnessLevelRequest | None = None,
+    user_id: uuid.UUID = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    data = body.model_dump(exclude_unset=True) if body else {}
+    level = await calculate_fitness_level(db, str(user_id), data)
+    return {"level": level}

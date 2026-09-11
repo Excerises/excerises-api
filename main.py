@@ -7,8 +7,10 @@ from scalar_fastapi import add_scalar_reference
 
 from app.database.schemas import Base
 from app.modules.admin.exercises.router import router as admin_exercises_router
+from app.modules.admin.news.router import router as admin_news_router
 from app.modules.admin.user.router import router as admin_user_router
 from app.modules.auth.router import router as auth_router
+from app.modules.news.router import router as news_router
 from app.core import config, logger
 from app.database.connection import engine
 from app.modules.profile.router import router as profile_router
@@ -27,6 +29,8 @@ app.include_router(auth_router)
 app.include_router(profile_router)
 app.include_router(admin_user_router)
 app.include_router(admin_exercises_router)
+app.include_router(admin_news_router)
+app.include_router(news_router)
 
 add_scalar_reference(
     app,

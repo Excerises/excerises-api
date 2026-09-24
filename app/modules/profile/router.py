@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.auth.dependencies import get_current_user_id
 from app.database.connection import get_db
+from app.shared.model import ApiResponse, api_response
 
 from .schemas import (
     CalculateFitnessLevelRequest,
@@ -17,7 +18,7 @@ from .service import calculate_fitness_level, get_profile, update_profile
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
 
-@router.get("", response_model=ProfileResponse)
+@router.get("", response_model=ApiResponse[ProfileResponse])
 async def get_my_profile(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
@@ -27,10 +28,10 @@ async def get_my_profile(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    return user
+    return api_response("get profile successful", user)
 
 
-@router.patch("", response_model=ProfileResponse)
+@router.patch("", response_model=ApiResponse[ProfileResponse])
 async def update_my_profile(
     body: ProfileUpdateRequest,
     user_id: uuid.UUID = Depends(get_current_user_id),
@@ -43,10 +44,12 @@ async def update_my_profile(
         )
     profile = await update_profile(db, str(user_id), data)
     user = await get_profile(db, str(user_id))
-    return user
+    return api_response("update profile successful", user)
 
 
-@router.post("/calculate-fitness", response_model=CalculateFitnessLevelResponse)
+@router.post(
+    "/calculate-fitness", response_model=ApiResponse[CalculateFitnessLevelResponse]
+)
 async def calculate_my_fitness_level(
     body: CalculateFitnessLevelRequest | None = None,
     user_id: uuid.UUID = Depends(get_current_user_id),
@@ -54,4 +57,4 @@ async def calculate_my_fitness_level(
 ):
     data = body.model_dump(exclude_unset=True) if body else {}
     level = await calculate_fitness_level(db, str(user_id), data)
-    return {"level": level}
+    return api_response("fitness level calculated", {"level": level})

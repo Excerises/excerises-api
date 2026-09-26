@@ -1,48 +1,69 @@
-import datetime
 import time
+from typing import Any
 import uuid
-from fastapi import Response
-
+from fastapi import Request, Response
 from app.core import logger
-from app.shared.model.api import ApiRequest
+from app.core.context import set_context, req_context
+
+SENSITIVE_FIELDS = [
+    "password",
+    "token",
+    "pin",
+    "code",
+    "nik",
+]
 
 
 def filtered_params(params: dict):
-    exceptions = ["password", "token", "pin", "code"]
-
     filtered = {}
     for key, value in params.items():
-        filtered[key] = value if key not in exceptions else "*redacted*"
+        filtered[key] = value if key not in SENSITIVE_FIELDS else "*redacted*"
 
     return filtered
 
 
-async def log_middleware(request: ApiRequest, call_next):
+async def log_middleware(request: Request, call_next):
+
+    request_id = (
+        request.headers.get("x-request-id")
+        or request.headers.get("X-Request-Id")
+        or str(uuid.uuid4())
+    )
     method = request.method
     url = request.url
     path = url.path
     start_time = time.time()
-    params = filtered_params(await request.json())
 
-    request.id = str(uuid.uuid4())
-    response: Response = await call_next(request)
+    token = set_context("request_id", request_id)
+    set_context("path", path)
+    set_context("method", method)
 
-    status_code = response.status_code
-    duration = round((time.time() - start_time) * 100)
+    information: dict[str, Any] = {}
 
-    information = {
-        "id": request.id,
-        "time": datetime.datetime.now().isoformat(),
-        "method": method,
-        "path": path,
-        "duration": f"{duration}ms",
-        "status_code": status_code,
-        "params": params,
-    }
+    try:
+        information["params"] = filtered_params(await request.json())
+    except Exception as _:
+        pass
 
-    if status_code >= 200 and status_code <= 299:
-        logger.log.info(information)
-    else:
+    try:
+        response: Response = await call_next(request)
+
+        status_code = response.status_code
+        duration = round((time.time() - start_time) * 100)
+
+        information["duration"] = f"{duration}ms"
+        information["status_code"] = status_code
+
+        if status_code >= 200 and status_code <= 299:
+            logger.log.info(information)
+        else:
+            logger.log.error(information)
+        req_context.reset(token)
+
+        return response
+    except Exception as e:
+        information["error"] = str(e)
         logger.log.error(information)
+        req_context.reset(token)
 
-    return response
+        raise e

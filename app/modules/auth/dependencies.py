@@ -6,7 +6,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core import logger
 from app.core.config import settings
+from app.core.context import set_context
 from app.database.connection import get_db
 from app.database.schemas import User, UserRole
 
@@ -40,6 +42,8 @@ async def get_current_user_id(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload"
         )
+
+    set_context("user_id", str(user_id))
 
     return uuid.UUID(user_id)
 

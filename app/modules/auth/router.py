@@ -25,7 +25,7 @@ async def register_user(body: RegisterRequest, db: AsyncSession = Depends(get_db
             "id": str(user.id),
             "name": user.name,
             "email": user.email,
-            "role": user.role.value,
+            "role": "user",
         },
     )
 

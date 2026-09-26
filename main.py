@@ -2,10 +2,11 @@ import logging
 import uvicorn
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from scalar_fastapi import add_scalar_reference
 
 from app.database.schemas import Base
+from app.middleware import add_middleware, log_middleware
 from app.modules.admin.exercises.router import router as admin_exercises_router
 from app.modules.admin.news.router import router as admin_news_router
 from app.modules.admin.user.router import router as admin_user_router
@@ -38,6 +39,8 @@ add_scalar_reference(
     app,
     route="/scalar",
 )
+
+add_middleware(app)
 
 
 @app.get("/")

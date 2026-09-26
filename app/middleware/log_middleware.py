@@ -14,10 +14,17 @@ SENSITIVE_FIELDS = [
 ]
 
 
-def filtered_params(params: dict):
+def filtered_params(params: dict[str, Any]):
     filtered = {}
     for key, value in params.items():
-        filtered[key] = value if key not in SENSITIVE_FIELDS else "*redacted*"
+        for sf in SENSITIVE_FIELDS:
+            print(sf, key, sf.lower() in key.lower())
+            if sf.lower() in key.lower():
+                filtered[key] = "*redacted*"
+                break
+
+        if filtered[key] is None:
+            filtered[key] = value
 
     return filtered
 

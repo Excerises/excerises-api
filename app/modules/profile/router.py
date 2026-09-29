@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,12 +9,12 @@ from app.database.connection import get_db
 from app.shared.model import ApiResponse, api_response
 
 from .schemas import (
-    CalculateFitnessLevelRequest,
     CalculateFitnessLevelResponse,
     ProfileResponse,
     ProfileUpdateRequest,
 )
-from .service import calculate_fitness_level, get_profile, update_profile
+from .service import get_profile, update_profile
+from app.shared.utils.fitness import calculate_fitness_level
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
@@ -51,10 +52,32 @@ async def update_my_profile(
     "/calculate-fitness", response_model=ApiResponse[CalculateFitnessLevelResponse]
 )
 async def calculate_my_fitness_level(
-    body: CalculateFitnessLevelRequest | None = None,
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
-    data = body.model_dump(exclude_unset=True) if body else {}
-    level = await calculate_fitness_level(db, str(user_id), data)
+    user = await get_profile(db, str(user_id))
+    if not user or not user.profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Complete your profile first",
+        )
+
+    profile = user.profile
+    today = date.today()
+    age = (
+        today.year
+        - profile.birth_date.year
+        - ((today.month, today.day) < (profile.birth_date.month, profile.birth_date.day))
+        if profile.birth_date
+        else 25
+    )
+
+    level = calculate_fitness_level(
+        age=age,
+        height=profile.height or 0,
+        weight=profile.weight or 0,
+        bmi=profile.bmi or 0,
+        workout_freq_per_week=profile.workout_freq_per_week or 0,
+        workout_duration_per_day=profile.workout_duration_per_day or 0,
+    )
     return api_response("fitness level calculated", {"level": level})

@@ -40,9 +40,5 @@ class ProfileUpdateRequest(BaseModel):
     workout_duration_per_day: int | None = None
 
 
-class CalculateFitnessLevelRequest(BaseModel):
-    pass
-
-
 class CalculateFitnessLevelResponse(BaseModel):
     level: int = Field(ge=1, le=3)

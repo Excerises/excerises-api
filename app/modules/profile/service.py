@@ -33,8 +33,3 @@ async def update_profile(db: AsyncSession, user_id: str, data: dict) -> UserProf
     await db.commit()
     await db.refresh(profile)
     return profile
-
-
-async def calculate_fitness_level(db: AsyncSession, user_id: str, data: dict) -> int:
-    # TODO: implement fitness level calculation (scale 1-3)
-    return 1

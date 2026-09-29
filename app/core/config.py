@@ -4,12 +4,20 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_PORT: int = 5000
+
     LOG_LEVEL: str = "DEBUG"
+
     DATABASE_URL: str = "mysql+aiomysql://root:@localhost:3306/excerises"
+
     JWT_SECRET: str = "change-me-in-production"
     JWT_ALGORITHM: str = "HS256"
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    HF_TOKEN: str = ""
+    HF_REPOSITORY: str = ""
+    HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "random_forest_fitness_model.pkl"
 
     model_config = {"env_file": ".env"}
 

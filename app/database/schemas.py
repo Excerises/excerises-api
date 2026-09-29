@@ -12,6 +12,11 @@ class UserRole(str, enum.Enum):
     USER = "user"
 
 
+class UserProfileGender(str, enum.Enum):
+    MALE = "male"
+    FEMALE = "female"
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -53,15 +58,19 @@ class UserProfile(Base):
         String(36), ForeignKey("users.id"), unique=True, nullable=False
     )
     user: Mapped["User"] = relationship(back_populates="profile")
+    gender: Mapped[UserProfileGender] = mapped_column(
+        String(10), default=UserProfileGender.MALE
+    )
     birth_date: Mapped[date] = mapped_column(nullable=True)
     height: Mapped[float] = mapped_column(Float, nullable=True)
     weight: Mapped[float] = mapped_column(Float, nullable=True)
     bmi: Mapped[float] = mapped_column(Float, nullable=True)
     workout_freq_per_week: Mapped[int] = mapped_column(Integer, nullable=True)
-    fitness_level: Mapped[str] = mapped_column(String(50), nullable=True)
+    workout_duration_per_day: Mapped[float] = mapped_column(Float, nullable=True)
+    water_intake_daily: Mapped[float] = mapped_column(Float, nullable=True)
     reminder_days: Mapped[list] = mapped_column(JSON, nullable=True)
     reminder_time: Mapped[time] = mapped_column(nullable=True)
-    workout_duration_per_day: Mapped[int] = mapped_column(Integer, nullable=True)
+    fitness_level: Mapped[str] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()

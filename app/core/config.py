@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     HF_TOKEN: str = ""
     HF_REPOSITORY: str = ""
     HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "random_forest_fitness_model.pkl"
+    HF_FITNESS_CLASSIFICATION_SCALER_NAME: str = "random_forest_fitness_model.pkl"
 
     model_config = {"env_file": ".env"}
 

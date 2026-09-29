@@ -2,20 +2,22 @@ from datetime import date, datetime, time
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.database.schemas import UserRole
+from app.database.schemas import UserProfileGender, UserRole
 
 
 class AdminProfileData(BaseModel):
     id: str
     birth_date: date | None = None
+    gender: UserProfileGender | None = None
     height: float | None = None
     weight: float | None = None
     bmi: float | None = None
     workout_freq_per_week: int | None = None
-    fitness_level: str | None = None
+    workout_duration_per_day: float | None = None
+    water_intake_daily: float | None = None
     reminder_days: list[int] | None = None
     reminder_time: time | None = None
-    workout_duration_per_day: int | None = None
+    fitness_level: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -51,7 +53,8 @@ class AdminUserProfileUpdateRequest(BaseModel):
     height: float | None = None
     weight: float | None = None
     workout_freq_per_week: int | None = None
-    fitness_level: str | None = None
+    workout_duration_per_day: float | None = None
+    water_intake_daily: float | None = None
     reminder_days: list[int] | None = None
     reminder_time: time | None = None
-    workout_duration_per_day: int | None = None
+    fitness_level: str | None = None

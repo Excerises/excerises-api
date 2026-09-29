@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
+from app.core.ai import load_fitness_classification_model
 from app.database.schemas import Base
 from app.middleware import add_middleware
 from app.modules.admin.exercises.router import router as admin_exercises_router
@@ -23,6 +24,9 @@ from app.modules.session.router import router as session_router
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        logger.log.info("Tables synchronized")
+
+    load_fitness_classification_model()
     yield
 
 

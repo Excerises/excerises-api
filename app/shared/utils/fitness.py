@@ -1,55 +1,48 @@
+import numpy as np
+
+from app.core.ai import (
+    load_fitness_classification_model,
+    load_fitness_classification_scaler,
+)
+from app.database.schemas import UserProfileGender
+
+
+def calculate_bmi(height: float, weight: float):
+    return weight / ((height / 100) ** 2)
+
+
 def calculate_fitness_level(
+    gender: UserProfileGender,
     age: int,
     height: float,
     weight: float,
-    bmi: float,
     workout_freq_per_week: int,
-    workout_duration_per_day: int,
+    workout_duration_per_day: float,
+    water_intake_daily: float,
 ) -> int:
-    """Calculate fitness level (1-3) based on user metrics.
+    bmi = calculate_bmi(height, weight)
+    gender_normalized = 1 if gender == UserProfileGender.MALE else 0
+    data = np.array(
+        [
+            [
+                age,
+                gender_normalized,
+                weight,
+                height,
+                water_intake_daily,
+                workout_freq_per_week,
+                workout_duration_per_day,
+                bmi,
+            ]
+        ]
+    )
 
-    Level 1: Beginner
-    Level 2: Intermediate
-    Level 3: Advanced
-    """
-    score = 0
+    scaler = load_fitness_classification_scaler()
+    data_scaled = scaler.transform(data)
 
-    # Workout frequency scoring
-    if workout_freq_per_week >= 5:
-        score += 3
-    elif workout_freq_per_week >= 3:
-        score += 2
-    else:
-        score += 1
+    model = load_fitness_classification_model()
+    preds = model.predict(data_scaled)
 
-    # Workout duration scoring
-    if workout_duration_per_day >= 60:
-        score += 3
-    elif workout_duration_per_day >= 30:
-        score += 2
-    else:
-        score += 1
+    fitness_level = int(preds[0])
 
-    # BMI scoring (healthy range = 18.5-24.9)
-    if 18.5 <= bmi <= 24.9:
-        score += 3
-    elif 25.0 <= bmi <= 29.9 or 17.0 <= bmi < 18.5:
-        score += 2
-    else:
-        score += 1
-
-    # Age scoring (younger tends to recover faster)
-    if age < 30:
-        score += 3
-    elif age < 50:
-        score += 2
-    else:
-        score += 1
-
-    # Map total score to level 1-3
-    if score >= 10:
-        return 3
-    elif score >= 7:
-        return 2
-    else:
-        return 1
+    return fitness_level

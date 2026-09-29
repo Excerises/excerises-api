@@ -2,7 +2,6 @@ import numpy as np
 
 from app.core.ai import (
     load_fitness_classification_model,
-    load_fitness_classification_scaler,
 )
 from app.database.schemas import UserProfileGender
 
@@ -37,11 +36,15 @@ def calculate_fitness_level(
         ]
     )
 
-    scaler = load_fitness_classification_scaler()
+    p = load_fitness_classification_model()
+    model = p.model
+    scaler = p.scaler
+
     data_scaled = scaler.transform(data)
 
-    model = load_fitness_classification_model()
     preds = model.predict(data_scaled)
+    probs = model.predict_proba(data_scaled)
+    print(probs)
 
     fitness_level = int(preds[0])
 

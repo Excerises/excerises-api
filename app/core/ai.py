@@ -3,6 +3,7 @@ import joblib
 
 from app.core import log
 from app.core.config import settings
+from app.shared.model.ai import FitnessClassificationModel
 
 hf.login(settings.HF_TOKEN)
 
@@ -18,27 +19,21 @@ def _hub_download(filename: str):
     )
 
 
-def load_fitness_classification_scaler():
+def load_fitness_classification_model() -> FitnessClassificationModel:
+    global _fitness_model
     global _fitness_scaler
 
-    if _fitness_scaler is not None:
-        return _fitness_scaler
+    if _fitness_scaler is None:
+        scaler_path = _hub_download(settings.HF_FITNESS_CLASSIFICATION_SCALER_NAME)
+        _fitness_scaler = joblib.load(scaler_path)
+        log.info("Fitness classification scaler loaded")
 
-    scaler_path = _hub_download(settings.HF_FITNESS_CLASSIFICATION_SCALER_NAME)
-    _fitness_scaler = joblib.load(scaler_path)
-    log.info("Fitness classification scaler loaded")
+    if _fitness_model is None:
+        model_path = _hub_download(settings.HF_FITNESS_CLASSIFICATION_MODEL_NAME)
+        _fitness_model = joblib.load(model_path)
+        log.info("Fitness classification model loaded")
 
-    return _fitness_scaler
-
-
-def load_fitness_classification_model():
-    global _fitness_model
-
-    if _fitness_model is not None:
-        return _fitness_model
-
-    model_path = _hub_download(settings.HF_FITNESS_CLASSIFICATION_MODEL_NAME)
-    _fitness_model = joblib.load(model_path)
-    log.info("Fitness classification model loaded")
-
-    return _fitness_model
+    return FitnessClassificationModel(
+        model=_fitness_model,
+        scaler=_fitness_scaler,
+    )

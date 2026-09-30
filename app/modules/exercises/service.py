@@ -2,6 +2,7 @@ import base64
 import io
 import json
 import ast
+import random
 import tempfile
 from typing import Any
 
@@ -93,11 +94,7 @@ async def import_exercise(
                     setattr(existing, key, value)
             else:
                 exercise = Exercise(
-                    id=(
-                        str(normalized_row.get("id"))
-                        if pd.notna(normalized_row.get("id"))
-                        else None
-                    ),
+                    id=str(int(normalized_row.get("id", random.randint(1000, 9999)))),
                     name=name,
                     **data,
                 )

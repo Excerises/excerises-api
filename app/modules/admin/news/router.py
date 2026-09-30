@@ -16,6 +16,7 @@ from app.modules.news.service import (
     list_news,
     update_news,
 )
+from app.shared.model import ApiResponse, api_response
 
 router = APIRouter(
     prefix="/admin/news",
@@ -24,26 +25,32 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[NewsResponse])
+@router.get("", response_model=ApiResponse[list[NewsResponse]])
 async def admin_list_news(
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_admin),
 ):
-    return await list_news(db)
+    return api_response("list news fetched", await list_news(db))
 
 
-@router.post("", response_model=NewsResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=ApiResponse[NewsResponse], status_code=status.HTTP_201_CREATED
+)
 async def admin_create_news(
     body: NewsCreateRequest,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
-    return await create_news(
+    news = await create_news(
         db, body.title, body.description, body.content, str(admin.id)
+    )
+    return api_response(
+        "news successfully created",
+        news,
     )
 
 
-@router.get("/{news_id}", response_model=NewsResponse)
+@router.get("/{news_id}", response_model=ApiResponse[NewsResponse])
 async def admin_get_news(
     news_id: str,
     db: AsyncSession = Depends(get_db),
@@ -54,10 +61,10 @@ async def admin_get_news(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="News not found"
         )
-    return news
+    return api_response("news fetched", news)
 
 
-@router.put("/{news_id}", response_model=NewsResponse)
+@router.put("/{news_id}", response_model=ApiResponse[NewsResponse])
 async def admin_update_news(
     news_id: str,
     body: NewsUpdateRequest,
@@ -74,7 +81,7 @@ async def admin_update_news(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="News not found"
         )
-    return news
+    return api_response("news updated", news)
 
 
 @router.delete("/{news_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -88,4 +95,4 @@ async def admin_delete_news(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="News not found"
         )
-    return None
+    return api_response("news deleted")

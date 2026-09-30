@@ -6,7 +6,7 @@ class ApiResponse[T](BaseModel):
     data: T
 
 
-def api_response[T](message: str, data: T) -> ApiResponse[T]:
+def api_response[T](message: str, data: T | None = None) -> ApiResponse[T | None]:
     return ApiResponse(
         message=message,
         data=data,

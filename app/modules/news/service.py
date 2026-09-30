@@ -40,7 +40,7 @@ async def create_news(
     )
     db.add(news)
     await db.commit()
-    await db.refresh(news, attribute_names=["created_by"])
+    await db.refresh(news)
     return news
 
 
@@ -57,7 +57,7 @@ async def update_news(
     for key, value in data.items():
         setattr(news, key, value)
     await db.commit()
-    await db.refresh(news, attribute_names=["created_by"])
+    await db.refresh(news)
     return news
 
 
@@ -82,5 +82,5 @@ async def get_public_news(db: AsyncSession, news_id: str) -> News | None:
         return None
     news.viewed_count = (news.viewed_count or 0) + 1
     await db.commit()
-    await db.refresh(news, attribute_names=["created_by"])
+    await db.refresh(news)
     return news

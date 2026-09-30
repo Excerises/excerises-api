@@ -10,7 +10,9 @@ from app.modules.auth.service import hash_password
 async def seed_admin():
     try:
         async with async_session() as db:
-            existing = await db.execute(select(User).where(User.email == "admin@demo.com"))
+            existing = await db.execute(
+                select(User).where(User.email == "admin@demo.com")
+            )
             if existing.scalar_one_or_none():
                 print("Admin already exists, skipping.")
                 return
@@ -18,7 +20,7 @@ async def seed_admin():
             admin = User(
                 name="Admin",
                 email="admin@demo.com",
-                hashed_password=hash_password("akuadmin"),
+                hashed_password=hash_password("admin"),
                 role=UserRole.ADMIN,
             )
             db.add(admin)

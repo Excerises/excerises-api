@@ -10,6 +10,7 @@ from app.modules.exercises.schemas import (
     ImportResponse,
 )
 from app.modules.exercises.service import import_exercise, list_exercises
+from app.shared.model import ApiResponse, api_response
 
 router = APIRouter(
     prefix="/admin/exercises",
@@ -18,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.post("/import", response_model=ImportResponse)
+@router.post("/import", response_model=ApiResponse[ImportResponse])
 async def admin_import_exercise(
     body: ExerciseImportRequest,
     db: AsyncSession = Depends(get_db),
@@ -30,10 +31,10 @@ async def admin_import_exercise(
     - file_type: 'xlsx' or 'csv'
     """
     result = await import_exercise(db, body.file, body.file_type)
-    return result
+    return api_response("exercises imported", result)
 
 
-@router.get("", response_model=ExerciseListResponse)
+@router.get("", response_model=ApiResponse[ExerciseListResponse])
 async def admin_list_exercises(
     cursor: str | None = None,
     limit: int = 20,
@@ -53,4 +54,4 @@ async def admin_list_exercises(
         )
 
     result = await list_exercises(db, cursor, limit)
-    return result
+    return api_response("exercises fetched", result)

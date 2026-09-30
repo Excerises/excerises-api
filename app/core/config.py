@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "random_forest_fitness_model.pkl"
     HF_FITNESS_CLASSIFICATION_SCALER_NAME: str = "random_forest_fitness_model.pkl"
 
+    AWS_ENDPOINT_URL: str = "http://localhost:9000"
+    AWS_ACCESS_KEY_ID: str = "rustfsadmin"
+    AWS_SECRET_ACCESS_KEY: str = "rustfsadmin"
+    AWS_REGION: str = "asia-east-1"
+    AWS_BUCKET_NAME: str = "excerises"
+
     model_config = {"env_file": ".env"}
 
     def is_development(self) -> bool:

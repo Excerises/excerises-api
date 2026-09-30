@@ -2,12 +2,14 @@ import base64
 import io
 import json
 import ast
+import tempfile
 from typing import Any
 
 import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.disk import s3_download
 from app.database.schemas import Exercise
 
 
@@ -32,22 +34,22 @@ def parse_list_string(value: Any) -> list | None:
 
 async def import_exercise(
     db: AsyncSession,
-    file_content: str,
-    file_type: str,
+    file_path: str,
 ) -> dict[str, Any]:
     """
     Import exercises from Excel or CSV file
     """
     try:
-        decoded_data = base64.b64decode(file_content)
-        buffer = io.BytesIO(decoded_data)
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            file_type = file_path.split(".")[-1].lower()
+            s3_download(file_path, tmp_file.name)
 
-        if file_type == "xlsx":
-            df = pd.read_excel(buffer)
-        elif file_type == "csv":
-            df = pd.read_csv(buffer)
-        else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+            if file_type == "xlsx":
+                df = pd.read_excel(tmp_file.name)
+            elif file_type == "csv":
+                df = pd.read_csv(tmp_file.name)
+            else:
+                raise ValueError(f"Unsupported file type: {file_type}")
     except Exception as e:
         return {
             "success": False,
@@ -59,12 +61,8 @@ async def import_exercise(
     imported_count = 0
     skipped_count = 0
 
-    # Define expected columns
-    expected_columns = {"name"}
-
     for _, row in df.iterrows():
-        # Normalize column names
-        normalized_row = {k.lower(): v for k, v in row.items()}
+        normalized_row = {str(k).lower(): v for k, v in row.items()}
 
         if "name" not in normalized_row or pd.isna(normalized_row["name"]):
             skipped_count += 1
@@ -72,7 +70,6 @@ async def import_exercise(
 
         name = str(normalized_row["name"])
 
-        # Check if exercise exists by name
         stmt = select(Exercise).where(Exercise.name == name)
         result = await db.execute(stmt)
         existing = result.scalar_one_or_none()
@@ -89,9 +86,6 @@ async def import_exercise(
             "difficulty": normalized_row.get("difficulty"),
             "category": normalized_row.get("category"),
         }
-
-        # Remove None values
-        data = {k: v for k, v in data.items() if pd.notna(v)}
 
         try:
             if existing:

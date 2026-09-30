@@ -30,7 +30,7 @@ async def admin_import_exercise(
     - file: Base64 encoded file content
     - file_type: 'xlsx' or 'csv'
     """
-    result = await import_exercise(db, body.file, body.file_type)
+    result = await import_exercise(db, body.file_path)
     return api_response("exercises imported", result)
 
 

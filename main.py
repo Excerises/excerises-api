@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
 from app.core.ai import load_fitness_classification_model
+from app.core.disk import initialize_s3_bucket
 from app.database.schemas import Base
 from app.middleware import add_middleware
 from app.modules.admin.exercises.router import router as admin_exercises_router
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
         logger.log.info("Tables synchronized")
 
     load_fitness_classification_model()
+    initialize_s3_bucket()
     yield
 
 

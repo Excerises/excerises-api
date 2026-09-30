@@ -26,8 +26,7 @@ class ExerciseDetailResponse(ExerciseResponse):
 
 
 class ExerciseImportRequest(BaseModel):
-    file: str = Field(..., description="Base64 encoded file content (xlsx or csv)")
-    file_type: str = Field(..., description="'xlsx' or 'csv'")
+    file_path: str = Field(..., description="Path of file content (xlsx or csv)")
 
 
 class ImportResponse(BaseModel):

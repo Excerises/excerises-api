@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.modules.auth.service import hash_password
-from app.database.schemas import User, UserRole
+from app.database.schemas import Session, SessionExercise, User, UserRole
 from app.database.schemas import UserProfile
 
 
@@ -88,3 +88,31 @@ async def delete_user(db: AsyncSession, user_id: str) -> bool:
     await db.delete(user)
     await db.commit()
     return True
+
+
+def _session_options():
+    """Eager-load exercises and their exercise detail."""
+    return selectinload(Session.exercises).selectinload(SessionExercise.exercise)
+
+
+async def list_user_sessions(db: AsyncSession, user_id: str) -> list[Session]:
+    """List training sessions owned by user, newest first."""
+    result = await db.execute(
+        select(Session)
+        .options(_session_options())
+        .where(Session.user_id == user_id)
+        .order_by(Session.created_at.desc())
+    )
+    return list(result.scalars().all())
+
+
+async def get_user_session(
+    db: AsyncSession, user_id: str, session_id: str
+) -> Session | None:
+    """Get single training session owned by user. Returns None if not found."""
+    result = await db.execute(
+        select(Session)
+        .options(_session_options())
+        .where(Session.id == session_id, Session.user_id == user_id)
+    )
+    return result.scalar_one_or_none()

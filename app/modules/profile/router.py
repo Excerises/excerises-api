@@ -14,7 +14,11 @@ from .schemas import (
     ProfileUpdateRequest,
 )
 from .service import get_profile, update_profile
-from app.shared.utils.fitness import calculate_bmi, calculate_fitness_level
+from app.shared.utils.fitness import (
+    calculate_age,
+    calculate_bmi,
+    calculate_fitness_level,
+)
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
@@ -63,18 +67,8 @@ async def calculate_my_fitness_level(
         )
 
     profile = user.profile
-    today = date.today()
-    age = (
-        today.year
-        - profile.birth_date.year
-        - (
-            (today.month, today.day)
-            < (profile.birth_date.month, profile.birth_date.day)
-        )
-        if profile.birth_date
-        else 25
-    )
 
+    age = calculate_age(profile.birth_date)
     bmi = calculate_bmi(height=profile.height or 0, weight=profile.weight or 0)
     level = calculate_fitness_level(
         gender=profile.gender,

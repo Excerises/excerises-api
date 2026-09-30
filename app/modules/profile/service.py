@@ -4,6 +4,11 @@ from sqlalchemy.orm import selectinload
 
 from app.database.schemas import User
 from app.database.schemas import UserProfile
+from app.shared.utils.fitness import (
+    calculate_age,
+    calculate_bmi,
+    calculate_fitness_level,
+)
 
 
 async def get_profile(db: AsyncSession, user_id: str) -> User | None:
@@ -25,10 +30,18 @@ async def update_profile(db: AsyncSession, user_id: str, data: dict) -> UserProf
         if value is not None:
             setattr(profile, key, value)
 
-    # Recalculate BMI if height or weight changed
     if profile.height and profile.weight:
-        height_m = profile.height / 100
-        profile.bmi = round(profile.weight / (height_m**2), 1)
+        profile.bmi = calculate_bmi(profile.height, profile.weight)
+
+    profile.fitness_level = calculate_fitness_level(
+        gender=profile.gender,
+        age=calculate_age(profile.birth_date),
+        height=profile.height,
+        weight=profile.weight,
+        workout_freq_per_week=profile.workout_freq_per_week,
+        workout_duration_per_day=profile.workout_duration_per_day,
+        water_intake_daily=profile.water_intake_daily,
+    )
 
     await db.commit()
     await db.refresh(profile)

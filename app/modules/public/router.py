@@ -11,7 +11,7 @@ router = APIRouter(tags=["Public"])
 @router.post(
     "/calculate-fitness",
     response_model=ApiResponse[PublicCalculateFitnessResponse],
-    summary="Calculate fitness level",
+    summary="Calculate Fitness Level",
 )
 async def public_calculate_fitness(body: PublicCalculateFitnessRequest):
     level = calculate_fitness_level(

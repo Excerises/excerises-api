@@ -14,4 +14,4 @@ class PublicCalculateFitnessRequest(BaseModel):
 
 
 class PublicCalculateFitnessResponse(BaseModel):
-    level: int = Field(ge=1, le=3)
+    level: str = Field(...)

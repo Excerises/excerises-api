@@ -45,4 +45,4 @@ class ProfileUpdateRequest(BaseModel):
 
 
 class CalculateFitnessLevelResponse(BaseModel):
-    level: int = Field(ge=1, le=3)
+    level: str = Field(...)

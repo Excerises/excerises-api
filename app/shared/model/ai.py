@@ -6,3 +6,9 @@ from typing import Any
 class FitnessClassificationModel:
     model: Any
     scaler: Any
+
+
+@dataclass
+class ExerciseRecommendationModel:
+    model: Any
+    feature_encoder: Any

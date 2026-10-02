@@ -5,7 +5,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
 
-from app.core.ai import load_fitness_classification_model
+from app.core.ai import (
+    load_exercise_recommendation_model,
+    load_fitness_classification_model,
+)
 from app.core.disk import initialize_s3_bucket
 from app.database.schemas import Base
 from app.middleware import add_middleware
@@ -27,8 +30,9 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         logger.log.info("Tables synchronized")
 
-    load_fitness_classification_model()
     initialize_s3_bucket()
+    load_fitness_classification_model()
+    load_exercise_recommendation_model()
     yield
 
 

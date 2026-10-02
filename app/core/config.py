@@ -17,8 +17,12 @@ class Settings(BaseSettings):
 
     HF_TOKEN: str = ""
     HF_REPOSITORY: str = ""
-    HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "random_forest_fitness_model.pkl"
-    HF_FITNESS_CLASSIFICATION_SCALER_NAME: str = "random_forest_fitness_model.pkl"
+    HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "fitness_svm_model.pkl"
+    HF_FITNESS_CLASSIFICATION_SCALER_NAME: str = "fitness_standard_scaler.pkl"
+    HF_EXERCISE_RECOMMENDATION_MODEL_NAME: str = "exercise_recommendation_knn_model.pkl"
+    HF_EXERCISE_RECOMMENDATION_FEATURE_ENCODER_NAME: str = (
+        "exercise_recommendation_onehot_features_encoder.pkl"
+    )
 
     AWS_ENDPOINT_URL: str = "http://localhost:9000"
     AWS_ACCESS_KEY_ID: str = "rustfsadmin"

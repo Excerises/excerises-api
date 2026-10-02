@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     HF_REPOSITORY: str = ""
     HF_FITNESS_CLASSIFICATION_MODEL_NAME: str = "fitness_svm_model.pkl"
     HF_FITNESS_CLASSIFICATION_SCALER_NAME: str = "fitness_standard_scaler.pkl"
+    HF_EXERCISE_RECOMMENDATION_CSV: str = "exercise_recommendation.csv"
     HF_EXERCISE_RECOMMENDATION_MODEL_NAME: str = "exercise_recommendation_knn_model.pkl"
     HF_EXERCISE_RECOMMENDATION_FEATURE_ENCODER_NAME: str = (
         "exercise_recommendation_onehot_features_encoder.pkl"

@@ -10,8 +10,20 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.ai import load_exercise_recommendation_model, _hub_download
+from app.database.connection import async_session
+from app.core.config import settings
 from app.core.disk import s3_download
 from app.database.schemas import Exercise
+from app.modules.exercises.schemas import (
+    ExcerciseBodyPart,
+    ExerciseCategory,
+    ExerciseDifficulty,
+    ExerciseEquipment,
+    ExerciseTarget,
+)
+
+_df_exercise: pd.DataFrame | None = None
 
 
 def parse_list_string(value: Any) -> list | None:
@@ -144,3 +156,50 @@ async def list_exercises(
         "has_more": has_more,
         "limit": limit,
     }
+
+
+def load_exercise_recommendation_dataframe() -> pd.DataFrame:
+    global _df_exercise
+
+    if _df_exercise is not None:
+        return _df_exercise
+
+    csv_path = _hub_download(settings.HF_EXERCISE_RECOMMENDATION_CSV)
+    _df_exercise = pd.read_csv(csv_path)
+
+    return _df_exercise
+
+
+async def recommend_exercise(
+    body_part: ExcerciseBodyPart,
+    equipment: ExerciseEquipment,
+    target: ExerciseTarget,
+    difficulty: ExerciseDifficulty,
+    category: ExerciseCategory,
+    top_n: int = 5,
+) -> list[Exercise]:
+    input_dict = {
+        "body_part": [body_part],
+        "equipment": [equipment],
+        "target": [target],
+        "difficulty": [difficulty],
+        "category": [category],
+    }
+    df = load_exercise_recommendation_dataframe()
+    p = load_exercise_recommendation_model()
+
+    X = pd.DataFrame(input_dict)
+    X_encoded = p.feature_encoder.transform(X)
+
+    _, indices = p.model.kneighbors(X_encoded, n_neighbors=top_n)
+
+    exercises_id = []
+    for indice in indices[0]:
+        exercise = df.iloc[indice]
+        exercises_id.append(exercise["id"])
+
+    async with async_session() as db:
+        query = await db.execute(select(Exercise).where(Exercise.id.in_(exercises_id)))
+        exercises = list(query.scalars().all())
+
+    return exercises

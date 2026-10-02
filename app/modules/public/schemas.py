@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 
 from app.database.schemas import UserProfileGender
+from app.modules.exercises.schemas import (
+    ExcerciseBodyPart,
+    ExerciseCategory,
+    ExerciseDifficulty,
+    ExerciseEquipment,
+    ExerciseResponse,
+    ExerciseTarget,
+)
 
 
 class PublicCalculateFitnessRequest(BaseModel):
@@ -15,3 +23,17 @@ class PublicCalculateFitnessRequest(BaseModel):
 
 class PublicCalculateFitnessResponse(BaseModel):
     level: str = Field(...)
+
+
+class PublicRecommendExerciseRequest(BaseModel):
+    body_part: ExcerciseBodyPart = Field(...)
+    equipment: ExerciseEquipment = Field(...)
+    target: ExerciseTarget = Field(...)
+    difficulty: ExerciseDifficulty = Field(...)
+    category: ExerciseCategory = Field(...)
+    top_n: int = Field(default=5)
+
+
+class PublicRecommendExerciseResponse(BaseModel):
+    total: int = 0
+    exercises: list[ExerciseResponse] = []

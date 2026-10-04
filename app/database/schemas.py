@@ -129,6 +129,7 @@ class Session(Base):
     id: Mapped[str] = mapped_column(
         String(36), nullable=False, primary_key=True, default=lambda: uuid.uuid4()
     )
+    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     user_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("users.id"), nullable=False
     )

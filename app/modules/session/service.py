@@ -1,3 +1,4 @@
+from datetime import date
 import uuid
 
 from sqlalchemy import select
@@ -25,6 +26,7 @@ def _session_options():
 async def create_session(
     db: AsyncSession,
     user_id: str,
+    name: str | None,
     duration: int,
     feedback: str | None,
     exercises_data: list[SessionExerciseCreateRequest],
@@ -37,8 +39,12 @@ async def create_session(
     if missing_ids:
         raise ExerciseNotFoundError(missing_ids)
 
+    if name is None:
+        name = f"Workout {date.today().strftime('%Y%m%d')}"
+
     session = Session(
         id=str(uuid.uuid4()),
+        name=name,
         user_id=user_id,
         duration=duration,
         feedback=feedback,

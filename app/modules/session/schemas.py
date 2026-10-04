@@ -10,6 +10,7 @@ class SessionExerciseCreateRequest(BaseModel):
 
 
 class SessionCreateRequest(BaseModel):
+    name: str | None = Field(default=None)
     duration: int = Field(default=0, ge=0)
     feedback: str | None = None
     exercises: list[SessionExerciseCreateRequest] = Field(min_length=1)
@@ -39,6 +40,7 @@ class SessionExerciseResponse(BaseModel):
 
 class SessionResponse(BaseModel):
     id: str
+    name: str | None = Field(default=None)
     duration: int
     feedback: str | None = None
     created_at: datetime | None = None

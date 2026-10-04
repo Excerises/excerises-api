@@ -23,7 +23,7 @@ async def create_my_session(
 ):
     try:
         session = await create_session(
-            db, str(user_id), body.duration, body.feedback, body.exercises
+            db, str(user_id), body.name, body.duration, body.feedback, body.exercises
         )
 
         return api_response("session created", session)

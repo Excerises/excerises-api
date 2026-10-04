@@ -39,8 +39,10 @@ async def create_session(
     if missing_ids:
         raise ExerciseNotFoundError(missing_ids)
 
+    is_reference = True
     if name is None:
         name = f"Workout {date.today().strftime('%Y%m%d')}"
+        is_reference = False
 
     session = Session(
         id=str(uuid.uuid4()),
@@ -48,6 +50,7 @@ async def create_session(
         user_id=user_id,
         duration=duration,
         feedback=feedback,
+        is_reference=is_reference,
     )
     db.add(session)
     await db.flush()

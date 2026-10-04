@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import date, datetime, time
 
-from sqlalchemy import JSON, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -140,6 +140,7 @@ class Session(Base):
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
+    is_reference: Mapped[bool] = mapped_column(Boolean, default=False)
     exercises: Mapped[list["SessionExercise"]] = relationship(back_populates="session")
 
 

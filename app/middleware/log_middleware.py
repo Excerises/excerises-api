@@ -18,7 +18,6 @@ def filtered_params(params: dict[str, Any]):
     filtered = {}
     for key, value in params.items():
         for sf in SENSITIVE_FIELDS:
-            print(sf, key, sf.lower() in key.lower())
             if sf.lower() in key.lower():
                 filtered[key] = "*redacted*"
                 break

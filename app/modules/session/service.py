@@ -39,10 +39,8 @@ async def create_session(
     if missing_ids:
         raise ExerciseNotFoundError(missing_ids)
 
-    is_reference = True
     if name is None:
         name = f"Workout {date.today().strftime('%Y%m%d')}"
-        is_reference = False
 
     session = Session(
         id=str(uuid.uuid4()),
@@ -50,7 +48,6 @@ async def create_session(
         user_id=user_id,
         duration=duration,
         feedback=feedback,
-        is_reference=is_reference,
     )
     db.add(session)
     await db.flush()
@@ -72,14 +69,21 @@ async def create_session(
     return result.scalar_one()
 
 
-async def list_sessions(db: AsyncSession, user_id: str) -> list[Session]:
+async def list_sessions(
+    db: AsyncSession, user_id: str, limit: int | None = None
+) -> list[Session]:
     """List training sessions owned by user, newest first."""
-    result = await db.execute(
+    query = (
         select(Session)
         .options(_session_options())
         .where(Session.user_id == user_id)
         .order_by(Session.created_at.desc())
     )
+
+    if limit is not None:
+        query = query.limit(limit)
+
+    result = await db.execute(query)
     return list(result.scalars().all())
 
 

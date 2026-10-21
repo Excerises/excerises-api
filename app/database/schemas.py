@@ -110,6 +110,7 @@ class News(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str] = mapped_column(Text)
     content: Mapped[str] = mapped_column(LONGTEXT)
+    image: Mapped[str] = mapped_column(Text, nullable=True)
     viewed_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=lambda: 0
     )
@@ -140,7 +141,6 @@ class Session(Base):
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
-    is_reference: Mapped[bool] = mapped_column(Boolean, default=False)
     exercises: Mapped[list["SessionExercise"]] = relationship(back_populates="session")
 
 

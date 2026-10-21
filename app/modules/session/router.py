@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.connection import get_db
@@ -38,8 +39,9 @@ async def create_my_session(
 async def list_my_sessions(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
+    limit: int | None = None,
 ):
-    sessions = await list_sessions(db, str(user_id))
+    sessions = await list_sessions(db, str(user_id), limit)
     return api_response("sessions fetched", sessions)
 
 

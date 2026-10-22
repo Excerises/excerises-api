@@ -10,10 +10,11 @@ from app.shared.model import ApiResponse, api_response
 
 from .schemas import (
     CalculateFitnessLevelResponse,
+    ProgressResponse,
     ProfileResponse,
     ProfileUpdateRequest,
 )
-from .service import get_profile, update_profile
+from .service import get_profile, get_progress, update_profile
 from app.shared.utils.fitness import (
     calculate_age,
     calculate_bmi,
@@ -50,6 +51,15 @@ async def update_my_profile(
     profile = await update_profile(db, str(user_id), data)
     user = await get_profile(db, str(user_id))
     return api_response("update profile successful", user)
+
+
+@router.get("/progress", response_model=ApiResponse[ProgressResponse])
+async def get_my_progress(
+    user_id: uuid.UUID = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await get_progress(db, str(user_id))
+    return api_response("get progress successful", data)
 
 
 @router.post(

@@ -46,3 +46,10 @@ class ProfileUpdateRequest(BaseModel):
 
 class CalculateFitnessLevelResponse(BaseModel):
     level: str = Field(...)
+
+
+class ProgressResponse(BaseModel):
+    streaks: int
+    workouts: int
+    minutes: int
+    weeklyDurations: list[int]

@@ -1,8 +1,10 @@
-from sqlalchemy import select
+from datetime import date, timedelta
+
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.database.schemas import User
+from app.database.schemas import Session, SessionExercise, User
 from app.database.schemas import UserProfile
 from app.shared.utils.fitness import (
     calculate_age,
@@ -46,3 +48,47 @@ async def update_profile(db: AsyncSession, user_id: str, data: dict) -> UserProf
     await db.commit()
     await db.refresh(profile)
     return profile
+
+
+async def get_progress(db: AsyncSession, user_id: str) -> dict:
+    rows = (
+        await db.execute(
+            select(Session.created_at, Session.duration).where(
+                Session.user_id == user_id
+            )
+        )
+    ).all()
+
+    workouts = (
+        await db.execute(
+            select(func.count(distinct(SessionExercise.exercise_id)))
+            .join(Session, Session.id == SessionExercise.session_id)
+            .where(Session.user_id == user_id)
+        )
+    ).scalar_one()
+
+    seconds = sum(duration or 0 for _, duration in rows)
+    trained_dates = {created_at.date() for created_at, _ in rows}
+
+    streaks = 0
+    day = date.today()
+    if day not in trained_dates:
+        day -= timedelta(days=1)
+    while day in trained_dates:
+        streaks += 1
+        day -= timedelta(days=1)
+
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    weekly_durations = [0] * 7
+    for created_at, duration in rows:
+        offset = (created_at.date() - monday).days
+        if 0 <= offset < 7:
+            weekly_durations[offset] += duration or 0
+
+    return {
+        "streaks": streaks,
+        "workouts": workouts,
+        "minutes": seconds / 60,
+        "weeklyDurations": weekly_durations,
+    }

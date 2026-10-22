@@ -20,6 +20,7 @@ from app.modules.news.router import router as news_router
 from app.core import config, logger
 from app.database.connection import engine
 from app.modules.profile.router import router as profile_router
+from app.modules.notifications.router import router as notifications_router
 from app.modules.public.router import router as public_router
 from app.modules.session.router import router as session_router
 
@@ -40,6 +41,7 @@ app = FastAPI(title="Excerises", lifespan=lifespan)
 
 app.include_router(public_router)
 app.include_router(auth_router)
+app.include_router(notifications_router)
 app.include_router(profile_router)
 app.include_router(session_router)
 app.include_router(admin_user_router)

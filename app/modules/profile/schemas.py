@@ -51,5 +51,5 @@ class CalculateFitnessLevelResponse(BaseModel):
 class ProgressResponse(BaseModel):
     streaks: int
     workouts: int
-    minutes: int
-    weeklyDurations: list[int]
+    minutes: float
+    weeklyDurations: list[float]

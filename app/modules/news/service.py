@@ -29,6 +29,7 @@ async def create_news(
     description: str,
     content: str,
     created_by_id: str,
+    image: str | None = None,
 ) -> News:
     """Create news attributed to the given admin user."""
     news = News(
@@ -37,6 +38,7 @@ async def create_news(
         content=content,
         viewed_count=0,
         created_by_id=created_by_id,
+        image=image,
     )
     db.add(news)
     await db.commit()

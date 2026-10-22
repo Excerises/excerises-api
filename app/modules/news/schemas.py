@@ -14,6 +14,7 @@ class NewsResponse(BaseModel):
     id: str
     title: str
     description: str
+    image: str | None = None
     content: str
     viewed_count: int
     created_at: datetime | None = None
@@ -25,10 +26,12 @@ class NewsResponse(BaseModel):
 class NewsCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1)
+    image: str | None = Field(default=None)
     content: str = Field(min_length=1)
 
 
 class NewsUpdateRequest(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, min_length=1)
+    image: str | None = Field(default=None)
     content: str | None = Field(default=None, min_length=1)

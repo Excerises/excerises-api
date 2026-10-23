@@ -7,6 +7,7 @@ from app.modules.auth.dependencies import get_current_user_id
 from app.modules.notifications.service import (
     delete_notification,
     get_notifications,
+    get_unread_count,
     mark_all_notifications_read,
     mark_notification_read,
 )
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 
 @router.get("", response_model=ApiResponse[List[NotificationReadResponse]])
-async def get_notifications(
+async def list_notifications(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
@@ -62,3 +63,12 @@ async def delete_notification_endpoint(
             status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
         )
     return api_response("notification deleted", notification)
+
+
+@router.get("/unread-count", response_model=ApiResponse[int])
+async def get_unread_count_endpoint(
+    user_id: uuid.UUID = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    count = await get_unread_count(db, str(user_id))
+    return api_response("unread count fetched", count)

@@ -47,10 +47,10 @@ async def admin_list_exercises(
     - limit: Number of items per page (default: 20)
     - Returns: data, next_cursor, has_more
     """
-    if limit < 1 or limit > 100:
+    if limit < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Limit must be between 1 and 100",
+            detail="Limit must be greated than 1",
         )
 
     result = await list_exercises(db, cursor, limit)

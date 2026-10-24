@@ -1,6 +1,7 @@
 import logging
 import uvicorn
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI
 from scalar_fastapi import add_scalar_reference
@@ -38,6 +39,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Excerises", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(public_router)
 app.include_router(auth_router)

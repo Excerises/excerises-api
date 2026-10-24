@@ -40,6 +40,10 @@ async def log_middleware(request: Request, call_next):
     path = url.path
     start_time = time.time()
 
+    if path == "/health":
+        response = await call_next(request)
+        return response
+
     token = set_context("request_id", request_id)
     set_context("path", path)
     set_context("method", method)

@@ -28,8 +28,10 @@ async def list_notifications(
     return api_response("notifications fetched", notifications)
 
 
-@router.get("/{notification_id}/read", response_model=ApiResponse[NotificationReadResponse])
-async def mark_notification_read(
+@router.get(
+    "/{notification_id}/read", response_model=ApiResponse[NotificationReadResponse]
+)
+async def mark_notification_read_fn(
     notification_id: int,
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
@@ -43,7 +45,7 @@ async def mark_notification_read(
 
 
 @router.get("/read-all", response_model=ApiResponse[List[NotificationReadResponse]])
-async def mark_all_notifications_read(
+async def mark_all_notifications_read_fn(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
@@ -51,7 +53,9 @@ async def mark_all_notifications_read(
     return api_response("all notifications marked as read", notifications)
 
 
-@router.delete("/{notification_id}", response_model=ApiResponse[NotificationReadResponse])
+@router.delete(
+    "/{notification_id}", response_model=ApiResponse[NotificationReadResponse]
+)
 async def delete_notification_endpoint(
     notification_id: int,
     user_id: uuid.UUID = Depends(get_current_user_id),

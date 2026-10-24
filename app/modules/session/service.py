@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database.schemas import Exercise, Session, SessionExercise
+from app.shared.utils.send_notification import NotificationPayload, send_notification
 
 from .schemas import SessionExerciseCreateRequest
 
@@ -62,6 +63,14 @@ async def create_session(
             )
         )
     await db.commit()
+    _ = await send_notification(
+        db,
+        NotificationPayload(
+            user_id=user_id,
+            title="New session finished",
+            description="You have finished a new session",
+        ),
+    )
 
     result = await db.execute(
         select(Session).options(_session_options()).where(Session.id == session.id)

@@ -28,7 +28,7 @@ async def list_notifications(
     return api_response("notifications fetched", notifications)
 
 
-@router.get(
+@router.post(
     "/{notification_id}/read", response_model=ApiResponse[NotificationReadResponse]
 )
 async def mark_notification_read_fn(
@@ -44,7 +44,7 @@ async def mark_notification_read_fn(
     return api_response("notification marked as read", notification)
 
 
-@router.get("/read-all", response_model=ApiResponse[List[NotificationReadResponse]])
+@router.post("/read-all", response_model=ApiResponse[List[NotificationReadResponse]])
 async def mark_all_notifications_read_fn(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),

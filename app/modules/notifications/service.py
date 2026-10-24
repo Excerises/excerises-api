@@ -29,7 +29,9 @@ async def get_unread_notifications(db: AsyncSession, user_id: str):
 async def get_unread_count(db: AsyncSession, user_id: str) -> int:
     """Get count of unread notifications for a user."""
     total_count = await db.scalar(
-        select(func.count(Notification.id)).where(Notification.user_id == user_id)
+        select(func.count(Notification.id)).where(
+            Notification.user_id == user_id and Notification.readed_at is None
+        )
     )
     return total_count or 0
 

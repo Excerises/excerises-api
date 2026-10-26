@@ -34,9 +34,12 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         logger.log.info("Tables synchronized")
 
-    initialize_s3_bucket()
-    load_fitness_classification_model()
-    load_exercise_recommendation_model()
+        try:
+            initialize_s3_bucket()
+            load_fitness_classification_model()
+            load_exercise_recommendation_model()
+        except Exception as _:
+            pass
     yield
 
 

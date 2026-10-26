@@ -11,11 +11,12 @@ from app.shared.utils.send_notification import send_admin_notification
 
 from .schemas import (
     CalculateFitnessLevelResponse,
+    ProfileAuthUpdateRequest,
     ProgressResponse,
     ProfileResponse,
     ProfileUpdateRequest,
 )
-from .service import get_profile, get_progress, update_profile
+from .service import get_profile, get_progress, update_profile, update_profile_auth
 from app.shared.utils.fitness import (
     calculate_age,
     calculate_bmi,
@@ -58,6 +59,28 @@ async def update_my_profile(
             description=f'"{user.name}" updated it\'s profile',
         )
     return api_response("update profile successful", user)
+
+
+
+@router.patch("/auth", response_model=ApiResponse[ProfileResponse])
+async def update_my_auth(
+    body: ProfileAuthUpdateRequest,
+    user_id: uuid.UUID = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    data = body.model_dump(exclude_unset=True)
+    if not data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update"
+        )
+    try:
+        await update_profile_auth(db, str(user_id), data)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    user = await get_profile(db, str(user_id))
+    return api_response("update auth successful", user)
 
 
 @router.get("/progress", response_model=ApiResponse[ProgressResponse])

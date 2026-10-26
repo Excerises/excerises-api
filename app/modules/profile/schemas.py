@@ -1,6 +1,6 @@
 from datetime import date, time
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from app.database.schemas import UserProfileGender, UserRole
 
@@ -46,6 +46,12 @@ class ProfileUpdateRequest(BaseModel):
 
 class CalculateFitnessLevelResponse(BaseModel):
     level: str = Field(...)
+
+
+class ProfileAuthUpdateRequest(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    password: str | None = None
 
 
 class ProgressResponse(BaseModel):

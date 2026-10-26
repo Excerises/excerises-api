@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database.schemas import Session, SessionExercise, User
 from app.database.schemas import UserProfile
+from app.modules.auth.service import hash_password
 from app.shared.utils.fitness import (
     calculate_age,
     calculate_bmi,
@@ -48,6 +49,31 @@ async def update_profile(db: AsyncSession, user_id: str, data: dict) -> UserProf
     await db.commit()
     await db.refresh(profile)
     return profile
+
+
+async def update_profile_auth(db: AsyncSession, user_id: str, data: dict) -> User:
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise ValueError("User not found")
+
+    if "email" in data:
+        existing = await db.execute(
+            select(User).where(User.email == data["email"], User.id != user_id)
+        )
+        if existing.scalar_one_or_none():
+            raise ValueError("Email already taken")
+        user.email = data["email"]
+
+    if "name" in data:
+        user.name = data["name"]
+
+    if "password" in data:
+        user.hashed_password = hash_password(data["password"])
+
+    await db.commit()
+    await db.refresh(user)
+    return user
 
 
 async def get_progress(db: AsyncSession, user_id: str) -> dict:

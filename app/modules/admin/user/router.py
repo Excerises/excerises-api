@@ -14,6 +14,7 @@ from .schemas import (
     AdminUserDetailResponse,
     AdminUserProfileUpdateRequest,
     AdminUserResponse,
+    AdminUserUpdateRequest,
 )
 from .service import (
     create_user,
@@ -22,6 +23,7 @@ from .service import (
     get_user_with_profile,
     list_user_sessions,
     list_users,
+    update_user,
     update_user_password,
     update_user_profile,
 )
@@ -73,6 +75,29 @@ async def admin_get_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
     return api_response("user fetched", user)
+
+
+@router.put("/{user_id}", response_model=ApiResponse[AdminUserResponse])
+async def admin_update_user(
+    user_id: str,
+    body: AdminUserUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    data = body.model_dump(exclude_unset=True)
+    if not data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update"
+        )
+    try:
+        user = await update_user(db, user_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return api_response("user updated", user)
 
 
 @router.put("/{user_id}/auth", response_model=ApiResponse[AdminUserResponse])

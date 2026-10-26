@@ -48,6 +48,11 @@ class AdminUserAuthUpdateRequest(BaseModel):
     password: str = Field(min_length=6, max_length=128)
 
 
+class AdminUserUpdateRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    email: EmailStr | None = None
+
+
 class AdminUserProfileUpdateRequest(BaseModel):
     birth_date: date | None = None
     height: float | None = None

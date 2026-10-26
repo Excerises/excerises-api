@@ -51,6 +51,32 @@ async def update_user_password(
     return user
 
 
+async def update_user(db: AsyncSession, user_id: str, data: dict) -> User | None:
+    """Partial update of name/email. Returns None if user not found.
+
+    Raises ValueError if the email is already taken by another user.
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        return None
+
+    name = data.get("name")
+    if name is not None:
+        user.name = name
+
+    email = data.get("email")
+    if email is not None and str(email) != user.email:
+        existing = await db.execute(select(User).where(User.email == str(email)))
+        if existing.scalar_one_or_none():
+            raise ValueError("Email already taken")
+        user.email = str(email)
+
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def update_user_profile(
     db: AsyncSession, user_id: str, data: dict
 ) -> UserProfile | None:

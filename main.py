@@ -13,6 +13,7 @@ from app.core.ai import (
 from app.core.disk import initialize_s3_bucket
 from app.database.schemas import Base
 from app.middleware import add_middleware
+from app.modules.admin.dashboard.router import router as admin_dashboard_router
 from app.modules.admin.exercises.router import router as admin_exercises_router
 from app.modules.admin.news.router import router as admin_news_router
 from app.modules.admin.user.router import router as admin_user_router
@@ -56,6 +57,7 @@ app.include_router(profile_router)
 app.include_router(session_router)
 app.include_router(exercises_router)
 app.include_router(admin_user_router)
+app.include_router(admin_dashboard_router)
 app.include_router(admin_exercises_router)
 app.include_router(admin_news_router)
 app.include_router(news_router)

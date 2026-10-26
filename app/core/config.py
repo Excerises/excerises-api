@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_PORT: int = 5000
 
+    BASE_URL: str = f"http://localhost:{APP_PORT}"
+
     LOG_LEVEL: str = "DEBUG"
 
     DATABASE_URL: str = "mysql+aiomysql://root:@localhost:3306/excerises"
@@ -35,6 +37,11 @@ class Settings(BaseSettings):
 
     def is_development(self) -> bool:
         return "prod" not in self.APP_ENV
+
+    def url(self, path: str) -> str:
+        if path.startswith("/"):
+            path = path[1:]
+        return f"{self.BASE_URL}/{path}"
 
 
 settings = Settings()

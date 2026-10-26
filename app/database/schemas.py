@@ -110,7 +110,7 @@ class News(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str] = mapped_column(Text)
     content: Mapped[str] = mapped_column(LONGTEXT)
-    image: Mapped[str] = mapped_column(Text, nullable=True)
+    image: Mapped[str | None] = mapped_column(Text, nullable=True)
     viewed_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=lambda: 0
     )

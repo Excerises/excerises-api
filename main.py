@@ -26,6 +26,7 @@ from app.modules.notifications.router import router as notifications_router
 from app.modules.public.router import router as public_router
 from app.modules.exercises.router import router as exercises_router
 from app.modules.session.router import router as session_router
+from app.modules.storage.router import router as storage_router
 
 
 @asynccontextmanager
@@ -64,6 +65,7 @@ app.include_router(admin_dashboard_router)
 app.include_router(admin_exercises_router)
 app.include_router(admin_news_router)
 app.include_router(news_router)
+app.include_router(storage_router)
 
 add_scalar_reference(
     app,

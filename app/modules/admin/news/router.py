@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.connection import get_db
@@ -42,7 +42,12 @@ async def admin_create_news(
     admin: User = Depends(require_admin),
 ):
     news = await create_news(
-        db, body.title, body.description, body.content, str(admin.id)
+        db,
+        body.title,
+        body.description,
+        body.content,
+        str(admin.id),
+        image=body.image,
     )
     return api_response(
         "news successfully created",
@@ -76,7 +81,14 @@ async def admin_update_news(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update"
         )
-    news = await update_news(db, news_id, data)
+    news = await update_news(
+        db,
+        news_id,
+        title=body.title,
+        description=body.description,
+        content=body.content,
+        image=body.image,
+    )
     if not news:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="News not found"

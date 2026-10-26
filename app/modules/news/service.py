@@ -1,7 +1,13 @@
+import os
+from os.path import exists
+from uuid import uuid4
+
+from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core import config
 from app.database.schemas import News
 
 
@@ -12,7 +18,7 @@ async def list_news(db: AsyncSession) -> list[News]:
         .options(selectinload(News.created_by))
         .order_by(News.created_at.desc())
     )
-    return list(result.scalars().all())
+    return [mapped_news(news) for news in list(result.scalars().all())]
 
 
 async def get_news(db: AsyncSession, news_id: str) -> News | None:
@@ -20,7 +26,10 @@ async def get_news(db: AsyncSession, news_id: str) -> News | None:
     result = await db.execute(
         select(News).options(selectinload(News.created_by)).where(News.id == news_id)
     )
-    return result.scalar_one_or_none()
+    news = result.scalar_one_or_none()
+    if news:
+        return mapped_news(news)
+    return None
 
 
 async def create_news(
@@ -43,11 +52,16 @@ async def create_news(
     db.add(news)
     await db.commit()
     await db.refresh(news)
-    return news
+    return mapped_news(news)
 
 
 async def update_news(
-    db: AsyncSession, news_id: str, data: dict[str, str]
+    db: AsyncSession,
+    news_id: str,
+    title: str | None = None,
+    description: str | None = None,
+    content: str | None = None,
+    image: str | None = None,
 ) -> News | None:
     """Partial update of title/description/content. Returns None if not found."""
     result = await db.execute(
@@ -56,11 +70,19 @@ async def update_news(
     news = result.scalar_one_or_none()
     if not news:
         return None
-    for key, value in data.items():
-        setattr(news, key, value)
+
+    if title is not None:
+        news.title = title
+    if description is not None:
+        news.description = description
+    if content is not None:
+        news.content = content
+    if image is not None:
+        news.image = image
+
     await db.commit()
     await db.refresh(news)
-    return news
+    return mapped_news(news)
 
 
 async def delete_news(db: AsyncSession, news_id: str) -> bool:
@@ -85,4 +107,10 @@ async def get_public_news(db: AsyncSession, news_id: str) -> News | None:
     news.viewed_count = (news.viewed_count or 0) + 1
     await db.commit()
     await db.refresh(news)
+    return mapped_news(news)
+
+
+def mapped_news(news: News) -> News:
+    if news.image and not news.image.startswith("http"):
+        news.image = config.settings.url(f"/storage{news.image}")
     return news

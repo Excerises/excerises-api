@@ -11,7 +11,7 @@ class ExerciseLevelDistribution(BaseModel):
 
 class DashboardStatResponse(BaseModel):
     total_users: int
-    total_exercise: int
+    total_exercises: int
     total_body_parts: int
     exercise_level_distribution: ExerciseLevelDistribution
 

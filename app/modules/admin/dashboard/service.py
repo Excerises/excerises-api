@@ -8,7 +8,7 @@ from app.database.schemas import Exercise, Session, SessionExercise, User
 
 async def get_dashboard_stat(db: AsyncSession) -> dict:
     total_users = (await db.execute(select(func.count(User.id)))).scalar() or 0
-    total_exercise = (await db.execute(select(func.count(Exercise.id)))).scalar() or 0
+    total_exercises = (await db.execute(select(func.count(Exercise.id)))).scalar() or 0
     total_body_parts = (
         await db.execute(
             select(func.count(distinct(Exercise.body_part))).where(
@@ -29,7 +29,7 @@ async def get_dashboard_stat(db: AsyncSession) -> dict:
 
     return {
         "total_users": total_users,
-        "total_exercise": total_exercise,
+        "total_exercises": total_exercises,
         "total_body_parts": total_body_parts,
         "exercise_level_distribution": {
             "labels": levels,
@@ -54,9 +54,7 @@ async def get_user_registrations(db: AsyncSession) -> dict:
         ).scalar() or 0
         dataset.append(count)
 
-    result = await db.execute(
-        select(User).order_by(User.created_at.desc()).limit(5)
-    )
+    result = await db.execute(select(User).order_by(User.created_at.desc()).limit(5))
     recent_users = list(result.scalars().all())
 
     return {
@@ -67,9 +65,7 @@ async def get_user_registrations(db: AsyncSession) -> dict:
 
 async def get_popular_exercises(db: AsyncSession) -> list[dict]:
     total_users_with_sessions = (
-        await db.execute(
-            select(func.count(distinct(Session.user_id)))
-        )
+        await db.execute(select(func.count(distinct(Session.user_id))))
     ).scalar() or 0
 
     if total_users_with_sessions == 0:

@@ -57,7 +57,7 @@ async def update_profile_auth(db: AsyncSession, user_id: str, data: dict) -> Use
     if not user:
         raise ValueError("User not found")
 
-    if "email" in data:
+    if data.get("email") is not None:
         existing = await db.execute(
             select(User).where(User.email == data["email"], User.id != user_id)
         )
@@ -65,10 +65,10 @@ async def update_profile_auth(db: AsyncSession, user_id: str, data: dict) -> Use
             raise ValueError("Email already taken")
         user.email = data["email"]
 
-    if "name" in data:
+    if data.get("name") is not None:
         user.name = data["name"]
 
-    if "password" in data:
+    if data.get("password") is not None:
         user.hashed_password = hash_password(data["password"])
 
     await db.commit()

@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.schemas import Notification
+from app.modules.admin.user.service import get_user_admins
 
 UserId = NewType("UserId", str)
 
@@ -96,6 +97,33 @@ async def send_notifications(
     ]
     if not notifications:
         return []
+    db.add_all(notifications)
+    try:
+        if commit:
+            await db.commit()
+            for notification in notifications:
+                await db.refresh(notification)
+        else:
+            await db.flush()
+    except SQLAlchemyError as e:
+        if commit:
+            await db.rollback()
+        raise NotificationSendError(user_id="bulk", detail=str(e)) from e
+    return notifications
+
+
+async def send_admin_notification(
+    db: AsyncSession, title: str, description: str, *, commit: bool = True
+) -> list[Notification]:
+    admins = await get_user_admins(db)
+    notifications = [
+        Notification(
+            user_id=admin.id,
+            title=title,
+            description=description,
+        )
+        for admin in admins
+    ]
     db.add_all(notifications)
     try:
         if commit:

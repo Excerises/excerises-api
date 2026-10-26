@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.auth.dependencies import get_current_user_id
 from app.database.connection import get_db
 from app.shared.model import ApiResponse, api_response
+from app.shared.utils.send_notification import send_admin_notification
 
 from .schemas import (
     CalculateFitnessLevelResponse,
@@ -50,6 +51,12 @@ async def update_my_profile(
         )
     profile = await update_profile(db, str(user_id), data)
     user = await get_profile(db, str(user_id))
+    if user is not None:
+        await send_admin_notification(
+            db,
+            title="User profile updated",
+            description=f'"{user.name}" updated it\'s profile',
+        )
     return api_response("update profile successful", user)
 
 

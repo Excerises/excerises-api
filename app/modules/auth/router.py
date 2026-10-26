@@ -4,6 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.connection import get_db
 from app.shared.model import api_response, ApiResponse
+from app.shared.utils.send_notification import (
+    send_admin_notification,
+)
 
 from .schemas import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse
 from .service import login, refresh_token, register
@@ -17,6 +20,11 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 async def register_user(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     try:
         user = await register(db, body.name, body.email, body.password)
+        await send_admin_notification(
+            db,
+            title="User registered",
+            description=f'"{body.name}" has been registered to our app',
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return api_response(
@@ -34,6 +42,11 @@ async def register_user(body: RegisterRequest, db: AsyncSession = Depends(get_db
 async def login_user(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     try:
         tokens = await login(db, body.email, body.password)
+        await send_admin_notification(
+            db,
+            title="User logged in",
+            description=f'"{body.email}" is logged in now',
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     return api_response("login success", tokens)

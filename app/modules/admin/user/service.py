@@ -116,3 +116,8 @@ async def get_user_session(
         .where(Session.id == session_id, Session.user_id == user_id)
     )
     return result.scalar_one_or_none()
+
+
+async def get_user_admins(db: AsyncSession) -> list[User]:
+    result = await db.execute(select(User).where(User.role == "admin"))
+    return list(result.scalars().all())

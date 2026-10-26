@@ -126,6 +126,11 @@ async def import_exercise(
     }
 
 
+async def get_exercise(db: AsyncSession, exercise_id: str) -> Exercise | None:
+    result = await db.execute(select(Exercise).where(Exercise.id == exercise_id))
+    return result.scalar_one_or_none()
+
+
 async def list_exercises(
     db: AsyncSession,
     cursor: str | None = None,

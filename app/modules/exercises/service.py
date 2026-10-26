@@ -6,6 +6,7 @@ import random
 import tempfile
 from typing import Any
 
+from fastapi import UploadFile
 import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -47,15 +48,23 @@ def parse_list_string(value: Any) -> list | None:
 
 async def import_exercise(
     db: AsyncSession,
-    file_path: str,
+    file_path: str | None,
+    file: UploadFile | None,
 ) -> dict[str, Any]:
     """
     Import exercises from Excel or CSV file
     """
     try:
         with tempfile.NamedTemporaryFile() as tmp_file:
-            file_type = file_path.split(".")[-1].lower()
-            s3_download(file_path, tmp_file.name)
+            if file is not None:
+                file_type = (file.filename or "file.csv").split(".")[-1].lower()
+                content = await file.read()
+                tmp_file.write(content)
+            elif file_path is not None:
+                file_type = file_path.split(".")[-1].lower()
+                s3_download(file_path, tmp_file.name)
+            else:
+                raise ValueError("File not provided")
 
             if file_type == "xlsx":
                 df = pd.read_excel(tmp_file.name)
@@ -81,9 +90,10 @@ async def import_exercise(
             skipped_count += 1
             continue
 
+        id = str(int(normalized_row.get("id", random.randint(1000, 9999))))
         name = str(normalized_row["name"])
 
-        stmt = select(Exercise).where(Exercise.name == name)
+        stmt = select(Exercise).where(Exercise.id == id)
         result = await db.execute(stmt)
         existing = result.scalar_one_or_none()
 
@@ -106,7 +116,7 @@ async def import_exercise(
                     setattr(existing, key, value)
             else:
                 exercise = Exercise(
-                    id=str(int(normalized_row.get("id", random.randint(1000, 9999)))),
+                    id=id,
                     name=name,
                     **data,
                 )
@@ -141,7 +151,7 @@ async def list_exercises(
     """
     stmt = select(Exercise)
     if cursor:
-        stmt = stmt.where(Exercise.name > cursor)
+        stmt = stmt.where(Exercise.id > cursor)
 
     stmt = stmt.order_by(Exercise.name.asc()).limit(limit + 1)
 
@@ -151,7 +161,7 @@ async def list_exercises(
     has_more = len(exercises) > limit
     if has_more:
         exercises = exercises[:limit]
-        next_cursor = exercises[-1].name
+        next_cursor = exercises[-1].id
     else:
         next_cursor = None
 

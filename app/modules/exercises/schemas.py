@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, Literal
 
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
 
 ExcerciseBodyPart = Literal[
@@ -97,7 +98,9 @@ class ExerciseDetailResponse(ExerciseResponse):
 
 
 class ExerciseImportRequest(BaseModel):
-    file_path: str = Field(..., description="Path of file content (xlsx or csv)")
+    file_path: str | None = Field(
+        default=None, description="Path of file content (xlsx or csv)"
+    )
 
 
 class ImportResponse(BaseModel):

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.schemas import User
@@ -21,7 +21,8 @@ router = APIRouter(
 
 @router.post("/import", response_model=ApiResponse[ImportResponse])
 async def admin_import_exercise(
-    body: ExerciseImportRequest,
+    body: ExerciseImportRequest | None = None,
+    file: UploadFile | None = None,
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_admin),
 ):
@@ -30,7 +31,11 @@ async def admin_import_exercise(
     - file: Base64 encoded file content
     - file_type: 'xlsx' or 'csv'
     """
-    result = await import_exercise(db, body.file_path)
+    result = await import_exercise(
+        db,
+        file_path=body.file_path if body is not None else None,
+        file=file,
+    )
     return api_response("exercises imported", result)
 
 

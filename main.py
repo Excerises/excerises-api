@@ -35,9 +35,9 @@ async def lifespan(app: FastAPI):
         logger.log.info("Tables synchronized")
 
         try:
-            initialize_s3_bucket()
             load_fitness_classification_model()
             load_exercise_recommendation_model()
+            initialize_s3_bucket()
         except Exception as _:
             pass
     yield

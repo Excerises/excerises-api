@@ -18,3 +18,4 @@ wheels/
 # Cache
 .omo/
 .cache/
+.DS_Store

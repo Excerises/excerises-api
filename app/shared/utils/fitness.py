@@ -58,7 +58,7 @@ def calculate_fitness_level(
     preds = model.predict(data_scaled)
     # probs = model.predict_proba(data_scaled)
     # print(probs)
-    print(preds)
+    # print(preds)
 
     fitness_level = int(preds[0])
 

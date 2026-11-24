@@ -14,9 +14,9 @@ SENSITIVE_FIELDS = [
 ]
 
 
-def filtered_params(params: dict[str, Any]):
+def filtered_params(params: dict[str, Any] | None):
     filtered = {}
-    for key, value in params.items():
+    for key, value in (params or {}).items():
         for sf in SENSITIVE_FIELDS:
             if sf.lower() in key.lower():
                 filtered[key] = "*redacted*"
@@ -25,11 +25,13 @@ def filtered_params(params: dict[str, Any]):
         if filtered.get(key) is None:
             filtered[key] = value
 
-    return filtered
+    if filtered is not None:
+        return filtered
+
+    return None
 
 
 async def log_middleware(request: Request, call_next):
-
     request_id = (
         request.headers.get("x-request-id")
         or request.headers.get("X-Request-Id")
@@ -40,10 +42,6 @@ async def log_middleware(request: Request, call_next):
     path = url.path
     start_time = time.time()
 
-    if path == "/health":
-        response = await call_next(request)
-        return response
-
     token = set_context("request_id", request_id)
     set_context("path", path)
     set_context("method", method)
@@ -51,11 +49,15 @@ async def log_middleware(request: Request, call_next):
     information: dict[str, Any] = {}
 
     try:
-        params = await request.json()
-        information["params"] = filtered_params(params)
+        params = filtered_params(await request.json())
+        if params is not None:
+            information["params"] = params
     except Exception as _:
-        print(_)
         pass
+
+    if path == "/health":
+        response = await call_next(request)
+        return response
 
     try:
         response: Response = await call_next(request)

@@ -22,7 +22,7 @@ def filtered_params(params: dict[str, Any]):
                 filtered[key] = "*redacted*"
                 break
 
-        if filtered[key] is None:
+        if filtered.get(key) is None:
             filtered[key] = value
 
     return filtered
@@ -51,8 +51,10 @@ async def log_middleware(request: Request, call_next):
     information: dict[str, Any] = {}
 
     try:
-        information["params"] = filtered_params(await request.json())
+        params = await request.json()
+        information["params"] = filtered_params(params)
     except Exception as _:
+        print(_)
         pass
 
     try:
